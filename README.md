@@ -1,4 +1,5 @@
-This is a repository for a team project in the course **Algorithms of Matrix Iterative Methods** (taught by Stefano Pozza, Ph.D., Faculty of Mathematics and Physics, Charles University).
+This is a repository for a team project in the course **Algorithms of Matrix Iterative Methods** (taught by Stefano Pozza,&nbsp;Ph.&nbsp;D., Faculty of Mathematics and Physics, Charles University).
+
 
 ## Team
 - **Siqing** – theory lead and presentation
