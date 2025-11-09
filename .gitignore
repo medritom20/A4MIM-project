@@ -1,0 +1,14 @@
+# MATLAB
+*.asv
+*.m~
+*.mlx.autosave
+
+# VS Code
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# OneDrive junk
+desktop.ini
