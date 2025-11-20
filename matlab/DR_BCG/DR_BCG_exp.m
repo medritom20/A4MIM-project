@@ -1,5 +1,14 @@
 function [omega_err, x_k] = DR_BCG_exp(A, b, x_0, x_ex, maxit)
 
+% Function meant for the experiments. Clculates only the special "A-norm"
+% of the error. Also returns the last iterations x_k.
+%
+% A is a positive definite matrix.
+% b is a matric right hand side.
+% x_ex is an exact matrix solution to a problem A * x = b.
+% x_0 is initial guess.
+% maxit is the number of iterations.
+
 x_k = x_0;
 r_k = b - A * x_0;
 [w_k,sig_k] = qr(r_k, 'econ');

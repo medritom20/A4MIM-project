@@ -1,3 +1,5 @@
+% This is just a testing script for development purposes.
+
 clear
 clc
 
