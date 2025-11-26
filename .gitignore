@@ -6,6 +6,17 @@
 # VS Code
 .vscode/
 
+# Latex
+*.aux
+*.fdb_latexmk
+*.fls
+*.log
+*.nav
+*.out
+*.snm
+*.synctex.gz
+*.toc
+
 # OS
 .DS_Store
 Thumbs.db
