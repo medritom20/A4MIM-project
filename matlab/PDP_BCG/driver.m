@@ -1,5 +1,5 @@
 clearvars; clc; close all
-addpath(genpath('.\'))
+addpath(genpath('..\'))
 
 dataFile = './data/bcsstk03.mat';              % './data/s3dkt3m2.mat' | './data/bcsstk03.mat'
 [A, ~] = load_problem(dataFile);
