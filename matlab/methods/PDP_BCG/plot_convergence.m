@@ -41,7 +41,7 @@ figPath = fullfile(outDir, 'omega_convergence.fig');
 pdfPath = fullfile(outDir, 'omega_convergence.pdf');
 savefig(hFig, figPath);
 if verLessThan('matlab', '9.8')
-    print(hFig, pdfPath, '-dpdf', '-painters');
+    print(hFig, pdfPath, '-dpdf', '-vector');
 else
     exportgraphics(hFig, pdfPath, 'ContentType', 'vector');
 end
