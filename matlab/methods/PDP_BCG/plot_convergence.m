@@ -11,10 +11,11 @@ end
 
 k = 0:numel(omegaHist)-1;
 hFig = figure('Name', 'PDP-BCG convergence');
+setLatexDefaults()
 semilogy(k, omegaHist, 'LineWidth', 1.5);
 grid on;
 
-xlabel('$\mathrm{Iteration}$', 'Interpreter', 'latex');
+xlabel('$\mathrm{Iteration}$');
 ylabel(['$\omega_k = \Bigl( ' ...
             '\frac{ ' ...
                 '\textrm{tr} \left( ' ...
@@ -25,13 +26,10 @@ ylabel(['$\omega_k = \Bigl( ' ...
                     '\textbf{x}^T \textbf{A} \textbf{x}' ...
                 '\right)' ...
             '}' ...
-        ' \Bigr)^{1/2}$'], ...
-    'Interpreter', 'latex');
-title('Convergence plot', 'Interpreter', 'latex');
+        ' \Bigr)^{1/2}$']) ;
+title('Convergence plot');
 
-set(gca, 'TickLabelInterpreter', 'latex');
-
-legend({solverLabel}, 'Interpreter', 'latex', 'Location', 'best');
+legend({solverLabel}, 'Location', 'best');
 
 outDir = fullfile('.', 'out', 'results');
 if ~exist(outDir, 'dir')
