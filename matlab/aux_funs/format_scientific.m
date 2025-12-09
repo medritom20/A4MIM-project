@@ -1,18 +1,14 @@
-function txt = format_scientific(val)
-% FORMAT_SCIENTIFIC  Returns a LaTeX-friendly string for scientific notation.
+function [mant, expo] = format_scientific(value)
+% FORMAT_SCIENTIFIC  Returns mantissa and exponent for scientific notation.
 
-if val == 0
-    txt = '0';
-    return;
-end
+    if value < 0
+        error('format_scientific:NegativeValue', 'Input value must be non-negative.');
+    elseif value == 0
+        mant = 0;
+        expo = 0;
+        return;
+    end
 
-expo = floor(log10(abs(val)));
-mant = val / 10^expo;
-
-if abs(mant - 1) < 1e-12
-    txt = sprintf('10^{%d}', expo);
-else
-    txt = sprintf('%g\\times 10^{%d}', mant, expo);
-end
-
+    expo = floor(log10(abs(value)));
+    mant = value / 10^expo;
 end
