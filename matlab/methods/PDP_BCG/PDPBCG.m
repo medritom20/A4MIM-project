@@ -12,12 +12,13 @@ function [X, omegaHist] = PDPBCG(A, B, X0, applyM, Xtrue, maxIt, tol)
 
 if nargin < 4 || isempty(applyM)
     applyM = @(u) u;
+    warning('PDPBCG:NoPreconditioner', 'No preconditioner provided; using identity.');
 end
 if nargin < 5 || isempty(Xtrue)
     error('PDPBCG requires Xtrue to evaluate omega.');
 end
 if nargin < 6 || isempty(maxIt)
-    maxIt = 100;
+    maxIt = 500;
     warning('PDPBCG:MaxItDefault', 'maxIt not provided; defaulting to %d.', maxIt);
 end
 if nargin < 7 || isempty(tol)
@@ -25,22 +26,15 @@ if nargin < 7 || isempty(tol)
     warning('PDPBCG:TolDefault', 'tol not provided; defaulting to %.1e.', tol);
 end
 
-omegaDen = sqrt(trace((Xtrue' * A) * Xtrue));
-if omegaDen == 0
-    error('The reference solution has zero A-norm; omega is undefined.');
-end
-
 X = X0;
 R = B - A * X;
 Z = applyM(R);
 [P, ~] = qr(Z, 0);
 
+omegaInit = trace((Xtrue' * A) * Xtrue);                % precompute omegaInit
 omegaHist = zeros(maxIt + 1, 1);
-E = Xtrue - X;
-omega = sqrt(trace((E' * A) * E)) / omegaDen;
-resTrace = trace(R' * R);
-omegaHist(1) = omega;
-fprintf('PDP-BCG: it.%3d\ttrace(r''*r) = %.2e\tomega = %.2e\n', 0, resTrace, omega);
+omegaHist(1) = omega_error(A, X, Xtrue, omegaInit);     % initial relative energy error; should be 1.0
+fprintf('\tPDP-BCG: it.%3d\tomega = %.2e\n', 0, omegaHist(1));
 
 for k = 1:maxIt
     AP = A * P;
@@ -53,12 +47,9 @@ for k = 1:maxIt
     Delta = - (P' * AP) \ (P' * (A * Z));
     [P, ~] = qr(Z + P * Delta, 0);
 
-    E = Xtrue - X;
-    omega = sqrt(trace((E' * A) * E)) / omegaDen;
-    resTrace = trace(R' * R);
+    omega = omega_error(A, X, Xtrue, omegaInit);
     omegaHist(k + 1) = omega;
-    fprintf('PDP-BCG: it.%3d\t\ttrace(r''*r) = %.2e\t\tomega = %.2e\n', k, resTrace, omega);
-
+    fprintf('\tPDP-BCG: it.%3d\tomega = %.2e\n', k, omega);
     if omega < tol
         omegaHist = omegaHist(1:k + 1);
         fprintf('PDP-BCG converged after %d iterations.\n', k);
