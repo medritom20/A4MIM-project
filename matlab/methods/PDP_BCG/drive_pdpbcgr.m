@@ -1,7 +1,7 @@
 clearvars; clc; close all
 addpath(genpath('..\'))
 
-dataFile = './data/bcsstk03.mat';              % './data/s3dkt3m2.mat' | './data/bcsstk03.mat'
+dataFile = 'bcsstk03.mat';              % 's3dkt3m2.mat' | 'bcsstk03.mat'
 [A, ~] = load_problem(dataFile);
 n = size(A, 1);
 

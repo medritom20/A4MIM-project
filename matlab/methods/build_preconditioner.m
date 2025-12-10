@@ -14,15 +14,23 @@ switch lower(precCfg.type)
         opts = precCfg.opts;
         L = ichol(A, opts);
         applyM = @(x) L' \ (L \ x);
+        applyL = @(x) L \ x;
+        applyLtr = @(x) L' \ x;
         info.type = 'ichol';
         info.opts = opts;
         info.L = L;
+        info.applyL = applyL;
+        info.applyLtr = applyLtr;
 
     case 'none'
         applyM = @(x) x;
+        applyL = @(x) x;
+        applyLtr = @(x) x;
         info.type = 'none';
         info.opts = struct();
         info.L = [];
+        info.applyL = applyL;
+        info.applyLtr = applyLtr;
 
     otherwise
         error('Unrecognized preconditioner type "%s".', precCfg.type);

@@ -1,4 +1,5 @@
 function [mant, expo] = format_scientific(val)
+% FORMAT_SCIENTIFIC  Returns mantissa and exponent for scientific notation.
     if val == 0
         mant = 0;
         expo = 0;

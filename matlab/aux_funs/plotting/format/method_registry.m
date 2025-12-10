@@ -39,7 +39,17 @@ function suffix = legend_suffix(precInfo)
 
     switch lower(precInfo.type)
         case 'ichol'
-            tolTxt = format_scientific(precInfo.opts.droptol);
+            [mant,exp] = format_scientific(precInfo.opts.droptol);
+            if abs(mant - round(mant)) < 1e-10
+                if abs(round(mant))-1 < 1e-10
+                    tolTxt = sprintf('10^{%d}', exp);
+                else
+                    tolTxt = sprintf('%d \\times 10^{%d}', round(mant), exp);
+                end
+            else
+                tolTxt = sprintf('%.1f \\times 10^{%d}', mant, exp);
+            end
+            % tolTxt = format_scientific(precInfo.opts.droptol);
             suffix = sprintf(' + ICT($%s$)', tolTxt);
         otherwise
             suffix = sprintf(' + %s', upper(precInfo.type));

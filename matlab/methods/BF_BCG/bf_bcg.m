@@ -1,4 +1,4 @@
-function [Xblk, relres, iter, reshist] = bf_bcg(A, B, tol, maxit)
+function [Xblk, relres, iter, reshist, omegaHist] = bf_bcg(A, B, tol, maxit, varargin)
 %BF_BCG  BF-Omin / BF-ECG (Algorithm 2.3) 
 %
 %   [Xblk, relres, iter, reshist] = bf_ebg(A, B, tol, maxit)
@@ -17,9 +17,26 @@ function [Xblk, relres, iter, reshist] = bf_bcg(A, B, tol, maxit)
 %--------------------------------------------------------------%
 
 
-% Initial residual block and search directions are the block RHS
-R = B;                 % R_0 (n x t)
-Z = B;                 % Z_1 = R_0
+X0 = zeros(size(B));
+Xtrue = [];
+applyM = @(u) u;
+rrqrTol = 1e-12;
+if ~isempty(varargin)
+    X0 = varargin{1};
+end
+if numel(varargin) >= 2
+    Xtrue = varargin{2};
+end
+if numel(varargin) >= 3 && ~isempty(varargin{3})
+    applyM = varargin{3};
+end
+if numel(varargin) >= 4 && ~isempty(varargin{4})
+    rrqrTol = varargin{4};
+end
+
+% Initial residual block and search directions
+R = B - A * X0;        % R_0
+Z = apply_preconditioner(applyM, R); % preconditioned residual
 
 [n, t] = size(R);
 
@@ -37,8 +54,17 @@ end
 
 % Initialisation of the arrays
 reshist       = zeros(maxit+1, 1);
-reshist(1)    = 1.0;   % ||r_0|| / ||r_0|| = 1
-Xblk          = zeros(n, t);
+reshist(1)    = norm(sum(R,2)) / norm(sum(B - A * X0, 2));
+Xblk          = X0;
+
+trackOmega = ~isempty(Xtrue);
+if trackOmega
+    omegaDen = trace((Xtrue' * A) * Xtrue);
+    omegaHist = zeros(maxit + 1, 1);
+    omegaHist(1) = omega_error(A, Xblk, Xtrue, omegaDen);
+else
+    omegaHist = [];
+end
 
 for k = 1:maxit
 
@@ -81,6 +107,9 @@ for k = 1:maxit
     r_vec  = sum(R, 2);
     relres = norm(r_vec) / normb;
     reshist(k+1) = relres;
+    if trackOmega
+        omegaHist(k + 1) = omega_error(A, Xblk, Xtrue, omegaDen);
+    end
 
     if relres < tol
         break;
@@ -92,7 +121,8 @@ for k = 1:maxit
     %   Z_{k+1} = R_k - P_k beta_k
     % ----------------------------------------
     beta = AP' * R;            % tcur x t
-    Znew = R - P * beta;       % n x t
+    Zraw = apply_preconditioner(applyM, R);
+    Znew = Zraw - P * beta;       % n x t
 
     % ----------------------------------------
     % Step 12: RRQR(Z_{k+1}, sqrt(eps))
@@ -101,7 +131,7 @@ for k = 1:maxit
     [Q, Rq] = qr(Znew, 0);     % Znew = Q * Rq
     diagR   = abs(diag(Rq)); %the magnitude of the diagonal elements of the upper triangular matrix Rq
 
-    thr   = 1e-12 * max(diagR);    % this is our definition of "almost linearly dependent"
+    thr   = rrqrTol * max(diagR);    % adaptive definition of "almost linearly dependent"
 	    rrank = sum(diagR > thr); %the rank of upper triangular matrix is the number of nonzero diagonal elements 
 
     if rrank == 0
@@ -115,6 +145,19 @@ end
 
 iter    = k;
 reshist = reshist(1:iter+1);
+if trackOmega
+    omegaHist = omegaHist(1:iter+1);
+end
 
 end
 
+function Z = apply_preconditioner(applyM, R)
+if isa(applyM, 'function_handle')
+    Z = zeros(size(R));
+    for j = 1:size(R,2)
+        Z(:,j) = applyM(R(:,j));
+    end
+else
+    Z = applyM * R;
+end
+end
