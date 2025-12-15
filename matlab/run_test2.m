@@ -6,9 +6,9 @@ addpath(genpath('.'));
 
 matrixName  = 's3dkt3m2.mat';
 blockSizes  = [1, 4, 16, 64];
-maxIts      = [3500, 1200, 600, 200]/100;
+maxIts      = [3500, 1200, 600, 200];
 tol         = 1e-10;
-rngSeed     = 7;        % Pick a positive integer seed for reproducibility
+rngSeed     = 5;        % Pick a positive integer seed for reproducibility
 precCfg = struct('type', 'ichol', 'opts', struct('type', 'ict', 'droptol', 1e-5, 'diagcomp', 1e-2));
     % precCfg = struct('type', 'none');
 
