@@ -8,7 +8,7 @@ addpath(genpath('.'));
 
     solver.matrixName = 's3dkt3m2.mat';
     solver.blockSizes = [16, 64];
-    solver.maxIts     = [500, 200];
+    solver.maxIts     = [500, 200]/100;
     solver.tol        = 1e-15;
     solver.precCfg    = struct('type', 'ichol', 'opts', struct('type', 'ict', ...
                          'droptol', 1e-5, 'diagcomp', 1e-2));
@@ -46,11 +46,12 @@ results = driver(sessions);
     save_results( solver.matrixName, info.rngSeed, solver.precCfg, results, sessions, info.experimentId);
 
 %% PLOTTING RESULTS
-styleDefs = method_registry(solver.precCfg);
+styleDefs = method_registry(solver);
 plotCfg.layout = [2, 1];
 plotCfg.title = 'DP-BCG vs. BF-BCG (s3dkt3m2, ICT)';
 plotCfg.outputDir = fullfile('.\out', 'results');
 plotCfg.figureSlug = 'fig3_s3dkt3m2';
 plotCfg.saveOutputs = true;
+plotCfg.experimentId = info.experimentId;
 
 plot_session_results(results, styleDefs, plotCfg);

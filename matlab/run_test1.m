@@ -40,12 +40,13 @@ results = driver(sessions);
 
 %% PLOTTING RESULTS
     % Prepare plot configuration
-    styleDefs = method_registry(solver.precCfg);
+    styleDefs = method_registry(solver);
     plotCfg.layout = [2, 2];
     plotCfg.title = 'Experiment 1 reproduction: bcsstk03';
     plotCfg.outputDir = fullfile('.\out', 'results');
     plotCfg.figureSlug = 'fig1_bcsstk03';
     plotCfg.saveOutputs = true;
+    plotCfg.experimentId = info.experimentId;
 
     % Generate plots (+SAVE)
     plot_session_results(results, styleDefs, plotCfg);
