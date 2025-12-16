@@ -19,7 +19,7 @@ function results = driver(sessions)
     [applyM, precInfo] = build_preconditioner(A, sessions(1).prec);
 
     % results.problem = problem;
-    % results.precInfo = precInfo;
+    results.precInfo = precInfo;
     nSessions = numel(sessions);
     % results.sessions = repmat(struct(), numSessions, 1);
 
@@ -91,11 +91,11 @@ function runOut = run_method(name, A, B, X0, Xtrue, applyM, precInfo, policy)
             runOut = struct('omega', omegaHist);
 
         case 'BF-BCG'
-            rrqrTol = [];
-            if isfield(policy, 'rrqrTol')
-                rrqrTol = policy.rrqrTol;
+            svdTol = [];
+            if isfield(policy, 'svdTol')
+                svdTol = policy.svdTol;
             end
-            [~, ~, ~, ~, omegaHist] = bf_bcg(A, B, policy.tol, policy.maxIt, X0, Xtrue, applyM, rrqrTol);
+            [~, omegaHist] = BFBCG(A, B, X0, applyM, Xtrue, policy.maxIt, policy.tol, svdTol);
             runOut = struct('omega', omegaHist);
 
         otherwise
