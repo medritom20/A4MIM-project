@@ -99,7 +99,7 @@ for k = 1:maxit
     [Delta, deltaBroken] = solve_linear(RHS, Znew' * Rnew, 'delta', k);
     if deltaBroken
         flag = 2;
-        break;
+        % break;
     end
 
     Praw = Znew + P * Delta;

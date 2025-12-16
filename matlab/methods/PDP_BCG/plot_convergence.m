@@ -11,6 +11,7 @@ end
 
 k = 0:numel(omegaHist)-1;
 hFig = figure('Name', 'PDP-BCG convergence');
+ax = gca;
 setLatexDefaults()
 semilogy(k, omegaHist, 'LineWidth', 1.5);
 grid on;
@@ -30,6 +31,7 @@ ylabel(['$\omega_k = \Bigl( ' ...
 title('Convergence plot');
 
 legend({solverLabel}, 'Location', 'best');
+set(ax, 'YScale', 'log'); 
 
 outDir = fullfile('.', 'out', 'results');
 if ~exist(outDir, 'dir')
