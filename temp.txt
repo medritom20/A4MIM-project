@@ -1,0 +1,134 @@
+function results = driver(sessions)
+% DRIVER  Orchestrates solver runs for a list of sessions.
+%
+% Each element of SESSIONS describes a block-size experiment:
+%   .problemFile   path to MAT file with variable Problem.A
+%   .blockSize     block size m
+%   .rngSeed       (optional) RNG seed for reproducibility
+%   .prec          (optional) preconditioner configuration (type/opts)
+%   .methods       array of structs with fields:
+%                     name    - solver identifier (HS-BCG, DP-BCG, DR-BCG, BF-BCG)
+%                     policy  - struct with solver parameters (tol, maxIt, etc.)
+%                     label   - optional legend label override
+%                     style   - optional plot style override
+%
+% The function returns a RESULTS struct containing the per-session outputs.
+
+if nargin < 1 || isempty(sessions)
+    error('driver:noSessions', 'Provide a non-empty array of session definitions.');
+end
+if ~isstruct(sessions)
+    error('driver:invalidSessions', 'Sessions must be provided as a struct array.');
+end
+
+[A, ~] = load_problem(sessions(1).mtrxName);
+n = size(A,1);
+
+if isfield(sessions(1), 'prec')
+    precCfg = sessions(1).prec;
+else
+    precCfg = struct('type', 'none');
+end
+[applyM, precInfo] = build_preconditioner(A, precCfg);
+
+results.problem = S.Problem;
+results.precInfo = precInfo;
+results.sessions = repmat(struct(), numel(sessions), 1);
+
+for isess = 1:numel(sessions)
+    sess = sessions(isess);
+
+    if ~strcmp(sess.problemFile, problemFile)
+        error('driver:mixedProblems', 'All sessions must share the same problem file.');
+    end
+    blockSize = sess.blockSize;
+    rngSeed = get_field(sess, 'rngSeed', 0) + isess - 1;
+    rng(rngSeed, 'twister');
+
+    Xtrue = randn(n, blockSize);
+    B = A * Xtrue;
+    X0 = zeros(n, blockSize);
+
+    methodConfigs = sess.methods;
+    methodResults = repmat(struct(), numel(methodConfigs), 1);
+    for im = 1:numel(methodConfigs)
+        cfg = methodConfigs(im);
+        policy = resolve_policy(cfg, sess);
+        omegaHist = run_method(cfg.name, A, B, X0, Xtrue, applyM, precInfo, policy);
+
+        methodResults(im).name = cfg.name;
+        if isfield(cfg, 'label')
+            methodResults(im).label = cfg.label;
+        else
+            methodResults(im).label = '';
+        end
+        if isfield(cfg, 'style')
+            methodResults(im).style = cfg.style;
+        else
+            methodResults(im).style = struct();
+        end
+        methodResults(im).omega = omegaHist;
+        methodResults(im).policy = policy;
+    end
+
+    results.sessions(isess).blockSize = blockSize;
+    results.sessions(isess).rngSeed = rngSeed;
+    results.sessions(isess).methods = methodResults;
+end
+
+end
+
+function val = get_field(strct, fieldName, defaultVal)
+if isfield(strct, fieldName) && ~isempty(strct.(fieldName))
+    val = strct.(fieldName);
+else
+    val = defaultVal;
+end
+end
+
+function policy = resolve_policy(methodCfg, sessionCfg)
+if isfield(methodCfg, 'policy') && ~isempty(methodCfg.policy)
+    policy = methodCfg.policy;
+else
+    policy = struct();
+end
+
+defaultTol = get_field(sessionCfg, 'tol', 1e-10);
+defaultMaxIt = get_field(sessionCfg, 'maxIt', 200);
+
+if ~isfield(policy, 'tol') || isempty(policy.tol)
+    policy.tol = defaultTol;
+end
+if ~isfield(policy, 'maxIt') || isempty(policy.maxIt)
+    policy.maxIt = defaultMaxIt;
+end
+if ~isfield(policy, 'rrqrTol')
+    policy.rrqrTol = [];
+end
+end
+
+function omegaHist = run_method(name, A, B, X0, Xtrue, applyM, precInfo, policy)
+switch name
+    case 'HS-BCG'
+        [~, ~, omegaHist] = PBlockCG_OLeary(A, B, X0, policy.tol, policy.maxIt, applyM, Xtrue);
+
+    case 'DP-BCG'
+        [~, omegaHist] = PDPBCG(A, B, X0, applyM, Xtrue, policy.maxIt, policy.tol);
+
+    case 'DR-BCG'
+        if strcmpi(precInfo.type, 'none')
+            [omegaHist, ~] = DR_BCG_exp(A, B, X0, Xtrue, policy.maxIt);
+        else
+            if ~isfield(precInfo, 'L') || isempty(precInfo.L)
+                error('driver:missingL', 'Preconditioned DR-BCG requires the Cholesky factor L.');
+            end
+            [omegaHist, ~] = Prec_DR_BCG_exp(A, B, X0, Xtrue, precInfo.L, policy.maxIt);
+        end
+
+    case 'BF-BCG'
+        [~, ~, ~, ~, omegaHist] = bf_bcg(A, B, policy.tol, policy.maxIt, X0, Xtrue, applyM, policy.rrqrTol);
+
+    otherwise
+        error('driver:unknownMethod', 'Unknown solver "%s".', name);
+end
+end
