@@ -10,7 +10,6 @@ maxIts      = [3500, 1200, 600, 200];
 tol         = 1e-10;
 rngSeed     = 5;        % Pick a positive integer seed for reproducibility
 precCfg = struct('type', 'ichol', 'opts', struct('type', 'ict', 'droptol', 1e-5, 'diagcomp', 1e-2));
-    % precCfg = struct('type', 'none');
 
 sessions = repmat(struct(), numel(blockSizes), 1);
 for iS = 1:numel(blockSizes)
