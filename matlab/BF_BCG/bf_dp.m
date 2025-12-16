@@ -11,6 +11,10 @@ addpath(srcDir);
 addpath(bfDir);
 addpath(pdpDir);
 
+% loading the data
+A = load(dataDir).Problem.A;
+n = length(A);
+
 %%%%%%%%%%%%%%%%
 % preconditioner options
 %%%%%%%%%%%%%%%%
@@ -22,10 +26,6 @@ opts.diagcomp = 1e-2;     % global diagonal shift
 L = ichol(A, opts);       
 applyM = @(R) L' \ (L \ R);
 
-
-% loading the data
-A = load(dataDir).Problem.A;
-n = length(A);
 
 % iterations, tolerances
 maxit = 500;

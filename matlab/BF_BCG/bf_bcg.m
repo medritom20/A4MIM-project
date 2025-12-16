@@ -62,7 +62,7 @@ function [Xblk, omega_final, iter, omegahist] = bf_bcg(A, B, applyM, X_ex, maxit
 		C  = Z' * AZ;              % tcur x tcur
 
 		% Cholesky: C = L * L^T
-		L = chol(C, 'lower');      % assume A is SPD and basis is good enough
+		L = chol(C, 'lower');      
 
 		% P_k and A P_k
 		P  = Z / L';
@@ -94,13 +94,12 @@ function [Xblk, omega_final, iter, omegahist] = bf_bcg(A, B, applyM, X_ex, maxit
 		Znew = applyM(Znew);
 
 		% step 12: SVD based rank truncation
-		%   (rank-revealing SVD done via MATLAB svd)
+		%   (rank-revealing SVD done via MATLAB svd), done just as in the paper
 		[U, S, ~] = svd(Znew,0);
 		svs = diag(S);
 		relSV = svs/max(svs); % the paper computes relative singular values
-		relSV = svs / max(svs);
 		fprintf('rel min SV = %.2e, max rel SV = %.2e\n', min(relSV), max(relSV));
-		rrank = sum(relSV > thr); %the rank of upper triangular matrix is the number of nonzero diagonal elements 
+		rrank = sum(relSV > thr); %the rank of "diagonal" matrix is the number of nonzero diagonal elements 
 		fprintf('it=%3d  min SV = %.2e, max SV = %.2e, rrank=%d\n', k, min(svs), max(svs), rrank);
 		Z = U(:,1:rrank); % Z_{k+1}; this assures Z has linearly independent columns
 
@@ -115,8 +114,8 @@ function [Xblk, omega_final, iter, omegahist] = bf_bcg(A, B, applyM, X_ex, maxit
 			k, tcur, rrank, normR, normZ, omega, alpha_norm);
 
 		if rrank == 0
-			warning('bf_bcg:allDroppedRRQR', ...
-				'All directions dropped by RRQR at iteration %d.', k);
+			warning('bf_bcg:allDropped', ...
+				'All directions dropped by SVD-rank truncation at iteration %d.', k);
 			break;
 		end
 	end
