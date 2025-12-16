@@ -97,11 +97,11 @@ function [Xblk, omega_final, iter, omegahist] = bf_bcg(A, B, applyM, X_ex, maxit
 		%   (rank-revealing SVD done via MATLAB svd)
 		[U, S, ~] = svd(Znew,0);
 		svs = diag(S);
-		fprintf('it=%3d  min SV = %.2e, max SV = %.2e, rrank=%d\n', k, min(svs), max(svs), rrank);
 		relSV = svs/max(svs); % the paper computes relative singular values
 		relSV = svs / max(svs);
 		fprintf('rel min SV = %.2e, max rel SV = %.2e\n', min(relSV), max(relSV));
 		rrank = sum(relSV > thr); %the rank of upper triangular matrix is the number of nonzero diagonal elements 
+		fprintf('it=%3d  min SV = %.2e, max SV = %.2e, rrank=%d\n', k, min(svs), max(svs), rrank);
 		Z = U(:,1:rrank); % Z_{k+1}; this assures Z has linearly independent columns
 
 		% for diagnostics of stalling, we print plenty of information
