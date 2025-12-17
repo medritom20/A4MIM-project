@@ -39,6 +39,7 @@ for isess = 1:numel(sessions)
     sess = sessions(isess);
     ax = nexttile(t);
     [kMax, legendEntries] = render_session(ax, sess, styleDefs);
+    set(ax,"YScale","log")
     blockLabel = sprintf('$m = %d$', sess.blockSize);
     finalize_axes(ax, blockLabel, kMax, legendEntries, 'latex');
 
@@ -90,6 +91,7 @@ function [kMax, legendEntries] = render_session(ax, session, styleDefs)
             'Color', style.color, ...
             'LineStyle', style.lineStyle, ...
             'LineWidth', style.lineWidth);
+        set(ax,"YScale","log")
 
         if isfield(meth, 'label') && ~isempty(meth.label)
             legendEntries{im} = meth.label; %#ok<AGROW>

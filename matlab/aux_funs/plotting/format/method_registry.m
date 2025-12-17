@@ -57,6 +57,7 @@ function bfDefs = build_bfbcg_defs(context, suffixPrec)
     for k = 1:numel(svdTols)
         tol = svdTols(k);
         suffixTol = legend_svd_suffix(tol);
+        bfDefs(k).name = 'BF-BCG'; 
         bfDefs(k).legend = sprintf('BF-BCG%s%s', suffixTol, suffixPrec);
         bfDefs(k).lineStyle = lineStyles{k};
         bfDefs(k).color = bfColor;
