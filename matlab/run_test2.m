@@ -5,7 +5,7 @@ addpath(genpath('.'));
 %% EXPERIMENT #2: Reproduce results from Fig. 2 in the paper
     % Mirror run_test1 structure for consistency
     info.experimentId = 2;
-    info.rngSeed      = 5;
+    info.rngSeed      = 10;
 
     solver.matrixName = 's3dkt3m2.mat';
     solver.blockSizes = [1, 4, 16, 64];

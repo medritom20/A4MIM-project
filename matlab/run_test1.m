@@ -18,7 +18,7 @@ addpath(genpath('.'));
     for iS = 1:numel(solver.blockSizes)
         sessions(iS).matrixName = solver.matrixName;
         sessions(iS).blockSize  = solver.blockSizes(iS);
-        sessions(iS).rngSeed    = solver.rngSeed + (iS-1);    % set unique rngSeed for each run to avoid identical solutions  
+        sessions(iS).rngSeed    = info.rngSeed + (iS-1);    % set unique rngSeed for each run to avoid identical solutions  
         sessions(iS).prec       = solver.precCfg; 
 
         basePolicy = struct('tol', solver.tol, 'maxIt', solver.maxIts(iS));
@@ -36,7 +36,7 @@ results = driver(sessions);
 
 %% SAVE RESULTS TO TABLE
     outputTableDir = ensure_dir( fullfile('.\out', 'results') );
-    save_results( solver.matrixName, info.rngSeed, solver.precCfg, results, sessions, experimentId);
+    save_results( solver.matrixName, info.rngSeed, solver.precCfg, results, sessions, info.experimentId);
 
 %% PLOTTING RESULTS
     % Prepare plot configuration
