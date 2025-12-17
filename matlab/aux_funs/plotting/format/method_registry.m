@@ -48,6 +48,7 @@ function bfDefs = build_bfbcg_defs(context, suffixPrec)
     end
 
     lineStyles = resolve_bf_styles(stylePref, numel(svdTols));
+    lineColors = resolve_bf_colors(context.colors, numel(svdTols) ) ;
     bfColor = [0.8500 0.1000 0.1000]; % force red hue
 
     bfDefs(numel(svdTols), 1) = struct('name', 'BF-BCG', 'legend', '', ...
@@ -60,7 +61,7 @@ function bfDefs = build_bfbcg_defs(context, suffixPrec)
         bfDefs(k).name = 'BF-BCG'; 
         bfDefs(k).legend = sprintf('BF-BCG%s%s', suffixTol, suffixPrec);
         bfDefs(k).lineStyle = lineStyles{k};
-        bfDefs(k).color = bfColor;
+        bfDefs(k).color = lineColors{k};
         bfDefs(k).svdTol = tol;
     end
 end
@@ -106,6 +107,18 @@ function styles = resolve_bf_styles(userStyles, n)
         else
             idx = min(k, numel(palette));
             styles{k} = palette{idx};
+        end
+    end
+end
+
+function linecolors = resolve_bf_colors(userStyles, n)
+    defaultColor = 'red';
+    linecolors = cell(1, n);
+    for k = 1:n
+        if k <= size(userStyles,1) && ~isempty(userStyles(k,:))
+            linecolors{k} = userStyles(k,:);
+        else
+            linecolors{k} = defaultColor;
         end
     end
 end

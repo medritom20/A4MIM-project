@@ -34,7 +34,7 @@ Z = applyM(R);
 omegaInit = trace((Xtrue' * A) * Xtrue);                % precompute omegaInit
 omegaHist = zeros(maxIt + 1, 1);
 omegaHist(1) = omega_error(A, X, Xtrue, omegaInit);     % initial relative energy error; should be 1.0
-fprintf('\tPDP-BCG: it.%3d\tomega = %.2e\n', 0, omegaHist(1));
+fprintf('\tPDP-BCG: it.%3d\t\tomega = %.2e\n', 0, omegaHist(1));
 
 for k = 1:maxIt
     AP = A * P;
@@ -49,7 +49,7 @@ for k = 1:maxIt
 
     omega = omega_error(A, X, Xtrue, omegaInit);
     omegaHist(k + 1) = omega;
-    fprintf('\tPDP-BCG: it.%3d\tomega = %.2e\n', k, omega);
+    fprintf('\tPDP-BCG: it.%3d\t\tomega = %.2e\n', k, omega);
     if omega < tol
         omegaHist = omegaHist(1:k + 1);
         fprintf('PDP-BCG converged after %d iterations.\n', k);

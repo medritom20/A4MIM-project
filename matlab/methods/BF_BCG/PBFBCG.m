@@ -53,7 +53,7 @@ for k = 1:maxIt
     
     % DP-BCG: [P, ~] = qr(Z + P * Delta, 0);
     % BF-BCG: SVD with threshold
-    [U, S, ~] = svd(Z + P * Delta, "econ");
+    [U, S, ~] = svd(Z + P * Delta,"econ");
         singVals = diag(S);
         sigmaMax = max(singVals);
         keep = singVals >= svdThr * sigmaMax;
@@ -63,12 +63,12 @@ for k = 1:maxIt
     omegaHist(k + 1) = omega;
 
         % Print iteration info
-        fprintf('\tPBF-BCG: it.%3d\tomega = %.2e\t\tkappa_est(SVD) = %.2e', k, omega, sigmaMax / min(singVals(keep)));
+        fprintf('\tPBF-BCG: it.%3d\tomega = %.2e\t\tkappa_est(SVD) = %.2e', k, omega, sigmaMax / min(singVals));
         if any(~keep)
-            fprintf('\t\t%2d/%2d singular values < %5.1f * (sigmaMax = %.3e) dropped; retaining %d.\n',  nnz(~keep), numel(singVals), svdThr, sigmaMax, nnz(keep));
+            fprintf('\t\t%2d/%2d singular values < %3.1e * (sigmaMax = %.3e) dropped; retaining %d.',  nnz(~keep), numel(singVals), svdThr, sigmaMax, nnz(keep));
         end
         fprintf('\n');
-        
+
     if omega < tol
         omegaHist = omegaHist(1:k + 1);
         fprintf('PBF-BCG converged after %d iterations.\n', k);
