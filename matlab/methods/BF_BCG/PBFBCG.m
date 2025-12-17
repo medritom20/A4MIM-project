@@ -39,7 +39,7 @@ Z = applyM(R);
 omegaInit = trace((Xtrue' * A) * Xtrue);                % precompute omegaInit
 omegaHist = zeros(maxIt + 1, 1);
 omegaHist(1) = omega_error(A, X, Xtrue, omegaInit);     % initial relative energy error; should be 1.0
-fprintf('\tPDP-BCG: it.%3d\tomega = %.2e\n', 0, omegaHist(1));
+fprintf('\n\tPDP-BCG: it.%3d\tomega = %.2e\n', 0, omegaHist(1));
 
 for k = 1:maxIt
     AP = A * P;
@@ -57,16 +57,18 @@ for k = 1:maxIt
         singVals = diag(S);
         sigmaMax = max(singVals);
         keep = singVals >= svdThr * sigmaMax;
-        if ~any(keep)
-            [~, idx] = max(singVals);
-            keep(idx) = true;
-            fprintf('\t\t%2d/%2d singular values < %5.1f * (sigmaMax = %.3e) dropped; retaining %d.\n',  nnz(~keep), numel(singVals), svdThr, sigmaMax, nnz(keep));
-        end
     P = U(:, keep);
 
     omega = omega_error(A, X, Xtrue, omegaInit);
     omegaHist(k + 1) = omega;
-    fprintf('\tPBF-BCG: it.%3d\tomega = %.2e\n', k, omega);
+
+        % Print iteration info
+        fprintf('\tPBF-BCG: it.%3d\tomega = %.2e\t\tkappa_est(SVD) = %.2e', k, omega, sigmaMax / min(singVals(keep)));
+        if any(~keep)
+            fprintf('\t\t%2d/%2d singular values < %5.1f * (sigmaMax = %.3e) dropped; retaining %d.\n',  nnz(~keep), numel(singVals), svdThr, sigmaMax, nnz(keep));
+        end
+        fprintf('\n');
+        
     if omega < tol
         omegaHist = omegaHist(1:k + 1);
         fprintf('PBF-BCG converged after %d iterations.\n', k);

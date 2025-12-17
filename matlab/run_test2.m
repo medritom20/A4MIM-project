@@ -40,12 +40,6 @@ results = driver(sessions);
     outputTableDir = ensure_dir( fullfile('.\out', 'results') );
     save_results( solver.matrixName, info.rngSeed, solver.precCfg, results, sessions, info.experimentId);
 
-
-%% TEMPORARY CODE SEGMENT: LOAD SAVED RESULTS
-% clc; close all
-% dbstop if error
-% load('test2_results.mat')
-
 %% PLOTTING RESULTS
 % Prepare plot configuration
 styleDefs = method_registry(solver);
