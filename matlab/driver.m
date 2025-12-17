@@ -91,17 +91,12 @@ function runOut = run_method(name, A, B, X0, Xtrue, applyM, precInfo, policy)
             runOut = struct('omega', omegaHist);
 
         case 'BF-BCG'
-            if isfield(policy, 'svdTol')
-                svdTol = policy.svdTol;
-            else
-                svdTol = 1e-10;
+            if ~isfield(policy, 'svdTol')
                 error('driver:missingSvdTol', 'Missing svdTol parameter for BF-BCG.');
-                % warning('driver:defaultSvdTol', ...
-                %         'Using default svdTol = %.2e for BF-BCG.', svdTol);
-                % return
             end
             % [~, omegaHist] = BFBCG(A, B, X0, applyM, Xtrue, policy.maxIt, policy.tol, svdTol);
-            [~, ~, ~, omegaHist] = pbf_bcg(A, B, applyM, Xtrue, policy.maxIt, policy.tol, svdTol);
+            % [~, ~, ~, omegaHist] = pbf_bcg(A, B, applyM, Xtrue, policy.maxIt, policy.tol, svdTol);
+            [~, omegaHist] = PBFBCG(A, B, X0, applyM, Xtrue, policy.maxIt, policy.tol, policy.svdTol);
             runOut = struct('omega', omegaHist);
 
         otherwise
