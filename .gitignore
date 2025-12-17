@@ -2,6 +2,7 @@
 *.asv
 *.m~
 *.mlx.autosave
+matlab/out/results/
 
 # VS Code
 .vscode/
